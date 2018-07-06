@@ -1,0 +1,50 @@
+<div id="load_msg"  style="border:1px solid green;border-radius:10px;padding:10px;">Немного подождите! Через несколько секунд загрузится форма оплаты.</div>
+
+<script src="https://widget.cloudpayments.ru/bundles/cloudpayments"></script>
+<script type="text/javascript">
+function clear_load_msg()
+ {ldelim}
+ load_msg=document.getElementById('load_msg');
+ load_msg.innerHTML = '';
+ load_msg.style.border='';
+ {rdelim}
+
+$(document).ready(function()
+  {ldelim}
+  var widget = new cp.CloudPayments();
+  widget.{if $type}auth{else}charge{/if}({ldelim}
+    publicId: '{$publicId}',
+    description: '{$description}',
+    amount: {$order.order_amount},
+    currency: 'RUB',
+    invoiceId: '{$order.orderID}',
+    email: '{$order.customer_email}',
+
+    data:{ldelim}
+    	cloudPayments:{ldelim}
+        customerReceipt:{ldelim}
+          Items:[
+            {foreach from=$content item=product}
+            {ldelim}
+            label: '{$product.label}',
+            price: {$product.price},
+            quantity: {$product.quantity},
+            amount: {$product.amount},
+            {if $tax > 0}vat: {$tax}{/if}
+            {rdelim},
+            {/foreach}
+            ],
+          {if $phone}phone: '{$phone}',{/if}
+          email: '{$order.customer_email}'
+          {rdelim}
+        {rdelim}
+      {rdelim},
+    {rdelim},
+
+    '{$onSuccess}',
+    '{$onFail}'
+    );
+
+  {rdelim});
+  setTimeout(function(){ldelim}clear_load_msg(){rdelim},10000);
+</script>
